@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Title>Interprocess Messaging Component</Title>
+    <Authors>Calteo</Authors>
+    <Description>Interprocess communication for .net applications</Description>
+    <PackageTags>interprocess communication tcp udp</PackageTags>
+    <RepositoryUrl>https://github.com/Calteo/Toolbox.Messaging</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/Calteo/Toolbox.Messaging</PackageProjectUrl>
+    <PackageIcon>Images\toolbox.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Images\toolbox.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+</Project>
