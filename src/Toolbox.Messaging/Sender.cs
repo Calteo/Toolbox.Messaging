@@ -30,7 +30,7 @@ namespace Toolbox.Messaging
         {
             for (var i = 0; i < message.Arguments.Count; i++)
             {
-                if (message.Arguments[i] is ReceiverBase receiver)
+                if (message.Arguments[i] is Receiver receiver)
                 {
                     message.Arguments[i] = new EndPoint { Connection = receiver.Listeners.First().Connection };
                 }

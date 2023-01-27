@@ -11,13 +11,16 @@ namespace Toolbox.Messaging.Speakers
     {
         public SenderTcp(string connection) : base(connection)
         {            
-            Client = new TcpClient(Uri.Host, Uri.Port);
+            Client = new TcpClient();
         }
 
         private TcpClient Client { get; }
         
         protected override void Send(MemoryStream stream)
         {
+            if (!Client.Connected)
+                Client.Connect(Uri.Host, Uri.Port);
+
             Trace.WriteLine($"send - {stream.Length} bytes", TraceCategory);
 
             if (!Client.Connected)
@@ -30,9 +33,9 @@ namespace Toolbox.Messaging.Speakers
             var tcpStream = Client.GetStream();
             tcpStream.Write(lengthBuffer, 0, lengthBuffer.Length);
             stream.WriteTo(tcpStream);
-            tcpStream.Flush();
+            tcpStream.Flush();                      
 
-            Trace.WriteLine($"sent - {stream.Length} bytes", TraceCategory);
+            Trace.WriteLine($"sent - {stream.Length} bytes", TraceCategory);            
         }
     }
 }

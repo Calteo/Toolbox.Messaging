@@ -15,7 +15,7 @@ namespace Toolbox.Messaging.Server
             Receiver = new ServerReceiver(this, $"tcp://{Dns.GetHostName()}:55833", $"udp://{Dns.GetHostName()}:55834");
         }
 
-        public ReceiverBase Receiver { get; set; }
+        public Receiver Receiver { get; set; }
 
         private void ServerFormLoad(object sender, System.EventArgs e)
         {
@@ -37,7 +37,7 @@ namespace Toolbox.Messaging.Server
         {
             Receiver.Start();
 
-            AppendMessage("server listening");
+            AppendMessage("server started");
         }
 
         public void AddHello(string text)

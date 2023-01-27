@@ -74,7 +74,7 @@ namespace Toolbox.Messaging.Listeners
                 var lengthBuffer = new byte[sizeof(long)];
                 while (true)
                 {
-                    Trace.WriteLine($"{clientEndPoint} - awaiting request", TraceCategory);
+                    Trace.WriteLine($"awaiting request", TraceCategory);
 
                     var length = await networkStream.ReadAsync(lengthBuffer, 0, lengthBuffer.Length);
                     if (length == lengthBuffer.Length)
@@ -83,17 +83,11 @@ namespace Toolbox.Messaging.Listeners
                         var messageBuffer = new byte[messageLength];
                         var gotLength = await networkStream.ReadAsync(messageBuffer, 0, messageBuffer.Length);
 
-                        Trace.WriteLine($"{clientEndPoint} - message read - {gotLength} bytes", TraceCategory);
+                        Trace.WriteLine($"read - {gotLength} bytes", TraceCategory);
 
                         if (gotLength == messageLength)
                         {
-                            var stream = new MemoryStream(messageBuffer);
-                            var formatter = new BinaryFormatter();
-                            var message = (Message)formatter.Deserialize(stream);
-
-                            Trace.WriteLine($"{clientEndPoint} - message '{message.Name}' received", TraceCategory);
-
-                            Receiver.DoReceive(message);
+                            DoReceiveASync(messageBuffer);
                         }
                     }
                     else

@@ -32,7 +32,7 @@
             this.labelServer = new System.Windows.Forms.Label();
             this.labelHello = new System.Windows.Forms.Label();
             this.labelSayHello = new System.Windows.Forms.Label();
-            this.buttonConnect = new System.Windows.Forms.Button();
+            this.buttonUse = new System.Windows.Forms.Button();
             this.buttonPostHello = new System.Windows.Forms.Button();
             this.buttonPostSayHello = new System.Windows.Forms.Button();
             this.textBoxServer = new System.Windows.Forms.TextBox();
@@ -53,7 +53,7 @@
             this.layoutPanel.Controls.Add(this.labelServer, 0, 0);
             this.layoutPanel.Controls.Add(this.labelHello, 0, 1);
             this.layoutPanel.Controls.Add(this.labelSayHello, 0, 2);
-            this.layoutPanel.Controls.Add(this.buttonConnect, 2, 0);
+            this.layoutPanel.Controls.Add(this.buttonUse, 2, 0);
             this.layoutPanel.Controls.Add(this.buttonPostHello, 2, 1);
             this.layoutPanel.Controls.Add(this.buttonPostSayHello, 2, 2);
             this.layoutPanel.Controls.Add(this.textBoxServer, 1, 0);
@@ -104,16 +104,16 @@
             this.labelSayHello.Text = "SayHello";
             this.labelSayHello.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
-            // buttonConnect
+            // buttonUse
             // 
-            this.buttonConnect.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.buttonConnect.Location = new System.Drawing.Point(774, 3);
-            this.buttonConnect.Name = "buttonConnect";
-            this.buttonConnect.Size = new System.Drawing.Size(114, 28);
-            this.buttonConnect.TabIndex = 3;
-            this.buttonConnect.Text = "Connect";
-            this.buttonConnect.UseVisualStyleBackColor = true;
-            this.buttonConnect.Click += new System.EventHandler(this.ButtonConnectClick);
+            this.buttonUse.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.buttonUse.Location = new System.Drawing.Point(774, 3);
+            this.buttonUse.Name = "buttonUse";
+            this.buttonUse.Size = new System.Drawing.Size(114, 28);
+            this.buttonUse.TabIndex = 3;
+            this.buttonUse.Text = "Use";
+            this.buttonUse.UseVisualStyleBackColor = true;
+            this.buttonUse.Click += new System.EventHandler(this.ButtonUseClick);
             // 
             // buttonPostHello
             // 
@@ -220,7 +220,7 @@
         private Label labelServer;
         private Label labelHello;
         private Label labelSayHello;
-        private Button buttonConnect;
+        private Button buttonUse;
         private Button buttonPostHello;
         private Button buttonPostSayHello;
         private TextBox textBoxServer;

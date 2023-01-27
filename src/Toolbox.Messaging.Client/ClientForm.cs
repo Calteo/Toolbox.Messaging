@@ -22,7 +22,7 @@ namespace Toolbox.Messaging.Client
         }
 
         private Sender? Sender { get; set; }
-        public ReceiverBase Receiver { get; }
+        public Receiver Receiver { get; }
 
         private void ButtonPostHelloClick(object sender, EventArgs e)
         {
@@ -43,7 +43,7 @@ namespace Toolbox.Messaging.Client
             }
         }
 
-        private void ButtonConnectClick(object sender, EventArgs e)
+        private void ButtonUseClick(object sender, EventArgs e)
         {
             try
             {
@@ -55,7 +55,7 @@ namespace Toolbox.Messaging.Client
                 buttonPostSayHello.Enabled = 
                 buttonPostData.Enabled = true;
 
-                AppendMessage($"connected - {textBoxServer.Text}");
+                AppendMessage($"using - {Sender.Speaker.Connection}");
             }
             catch (Exception exception)
             {

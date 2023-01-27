@@ -56,19 +56,13 @@ namespace Toolbox.Messaging.Listeners
             {
                 var clientEndPoint = result.RemoteEndPoint;
 
-                Trace.WriteLine($"{clientEndPoint} - message read - {result.Buffer.Length} bytes", "ListeneUdp.HandleMessageAsync");
+                Trace.WriteLine($"read - {result.Buffer.Length} bytes", TraceCategory);
 
-                var stream = new MemoryStream(result.Buffer);
-                var formatter = new BinaryFormatter();
-                var message = (Message)formatter.Deserialize(stream);
-
-                Trace.WriteLine($"{clientEndPoint} - message '{message.Name}' received", "ListenerUdp.HandleMessageAsync");
-
-                Receiver.DoReceive(message);
+                DoReceiveASync(result.Buffer);
             }
             catch (Exception exception)
             {
-                Trace.WriteLine(exception.Message, "ListenerUdp.HandleMessageAsync");
+                Trace.WriteLine(exception.Message, TraceCategory);
             }
         }
     }

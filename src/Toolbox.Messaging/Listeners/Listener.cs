@@ -1,7 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Threading.Tasks;
 using Toolbox.Messaging.Schemes;
 
 namespace Toolbox.Messaging.Listeners
@@ -22,10 +26,33 @@ namespace Toolbox.Messaging.Listeners
         /// <summary>
         /// The receiver containing this listener.
         /// </summary>
-        public ReceiverBase Receiver { get; internal set; }
+        public Receiver Receiver { get; internal set; }
 
         internal abstract void Start();
 
         internal abstract void Stop();
+
+        protected async void DoReceiveASync(byte[] buffer)
+        {
+            await Task.Run(() => DoReceive(buffer));
+        }
+
+        private void DoReceive(byte[] buffer)
+        {            
+            var stream = new MemoryStream(buffer);
+
+            var decoded = Decode(stream);
+            
+            var formatter = new BinaryFormatter();            
+            var message = (Message)formatter.Deserialize(decoded);
+
+            Trace.WriteLine($"message '{message.Name}' received", TraceCategory);
+            Receiver.DoReceive(message);            
+        }
+
+        protected virtual MemoryStream Decode(MemoryStream stream)
+        {
+            return stream;
+        }
     }
 }

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Toolbox.Messaging.Forms
+﻿namespace Toolbox.Messaging.Forms
 {
     /// <summary>
     /// A <see cref="Reciever"/> for <see cref="Control"/>s.
@@ -17,18 +11,18 @@ namespace Toolbox.Messaging.Forms
         public ControlReceiver(Control control, params string[] connections) : base(connections)
         {
             Control = control;
-            Handler = new Action<Message>(OnReceived);
+            Handler = new Action<Message>(InvokeHandler);
         }
 
         private Control Control { get;  }
         private Action<Message> Handler { get; }
 
-        protected override void OnReceived(Message message)
+        protected override void InvokeHandler(Message message)
         {
             if (Control.InvokeRequired)
                 Control.BeginInvoke(Handler, message);
             else
-                base.OnReceived(message);
+                base.InvokeHandler(message);
         }
     }
 }
