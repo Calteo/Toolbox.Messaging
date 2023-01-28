@@ -11,9 +11,14 @@ namespace Toolbox.Messaging
     [Serializable]
     class EndPoint
     {
+        public EndPoint(string connection)
+        {
+            Connection = connection;
+        }
+
         /// <summary>
         /// The connection to transport
         /// </summary>
-        public string Connection { get; set; }
+        public string Connection { get; }
     }
 }

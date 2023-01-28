@@ -11,28 +11,34 @@ namespace Toolbox.Messaging.Listeners
     [Scheme("udp")]
     class UdpListener : SocketListener
     {
-        public UdpListener(string connection) : base(connection, SocketType.Dgram, ProtocolType.Udp)
-        {
-            Listener = new UdpClient(EndPoint);
+        public UdpListener(string connection, Receiver receiver) : base(connection, receiver, SocketType.Dgram, ProtocolType.Udp)
+        {            
         }
-        private UdpClient Listener { get; }
+
+        private UdpClient? Listener { get; set; }
 
         internal override async void Start()
         {
             var tc = $"{nameof(UdpListener)}[{Connection}]";
 
-            while (true)
+            Listener = new UdpClient(EndPoint);
+
+            while (!Receiver.Token.IsCancellationRequested)
             {
                 try
                 {
-                    Trace.WriteLine($"awaiting message - {Connection}", tc);
-                    var result = await Listener.ReceiveAsync();
-                    Trace.WriteLine($"got message - {result.RemoteEndPoint}", tc);
+                    Trace.WriteLine($"awaiting message on {Connection}", tc);
+                    var result = await Listener.ReceiveAsync(Receiver.Token);
+                    Trace.WriteLine($"got message from {result.RemoteEndPoint}", tc);
                     var task = HandleMessageAsync(result);
 
                     // if already faulted, re-throw any error on the calling context
                     if (task.IsFaulted)
                         task.Wait();
+                }
+                catch (OperationCanceledException cancelException)
+                {
+                    Trace.WriteLine(cancelException.Message, TraceCategory);
                 }
                 catch (Exception exception)
                 {
@@ -43,7 +49,8 @@ namespace Toolbox.Messaging.Listeners
 
         internal override void Stop()
         {
-            throw new NotImplementedException();
+            Listener?.Close();
+            Listener = null;
         }
 
         private async Task HandleMessageAsync(UdpReceiveResult result)
@@ -56,7 +63,7 @@ namespace Toolbox.Messaging.Listeners
             {
                 var clientEndPoint = result.RemoteEndPoint;
 
-                Trace.WriteLine($"read - {result.Buffer.Length} bytes", TraceCategory);
+                Trace.WriteLine($"got {result.Buffer.Length} bytes", TraceCategory);
 
                 DoReceiveASync(result.Buffer);
             }

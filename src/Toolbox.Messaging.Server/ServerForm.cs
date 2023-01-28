@@ -12,7 +12,7 @@ namespace Toolbox.Messaging.Server
 
             Trace.Listeners.Add(new TextBoxTraceListener(textBoxMessages));
 
-            Receiver = new ServerReceiver(this, $"tcp://{Dns.GetHostName()}:55833", $"udp://{Dns.GetHostName()}:55834");
+            Receiver = new ServerReceiver(this, DemoApplication.TcpConnection, DemoApplication.UdpConnection);
         }
 
         public Receiver Receiver { get; set; }
@@ -20,9 +20,7 @@ namespace Toolbox.Messaging.Server
         private void ServerFormLoad(object sender, System.EventArgs e)
         {
             textBoxTcp.Text = Receiver.Listeners[0].Connection;
-            textBoxUdp.Text = Receiver.Listeners[0].Connection;
-
-            Receiver.Start();
+            textBoxUdp.Text = Receiver.Listeners[1].Connection;
         }
 
         private void AppendMessage(string text)
@@ -35,9 +33,7 @@ namespace Toolbox.Messaging.Server
 
         private void ServerFormShown(object sender, EventArgs e)
         {
-            Receiver.Start();
-
-            AppendMessage("server started");
+            buttonStart.PerformClick();
         }
 
         public void AddHello(string text)
@@ -59,6 +55,22 @@ namespace Toolbox.Messaging.Server
             AppendMessage($"GotData {data.MagicNumber}");
             data.ResposeNumber = 10000 - data.MagicNumber;
             AppendMessage($"ReplyData {data.ResposeNumber}");
+        }
+
+        private void ButtonStartClick(object sender, EventArgs e)
+        {
+            Receiver.Start();
+            AppendMessage("Reciever started");
+            buttonStart.Enabled = false;
+            buttonStop.Enabled = true;
+        }
+
+        private void ButtonStopClick(object sender, EventArgs e)
+        {
+            Receiver.Stop();
+            AppendMessage("Reciever stopped");
+            buttonStart.Enabled = true;
+            buttonStop.Enabled = false;
         }
     }
 }

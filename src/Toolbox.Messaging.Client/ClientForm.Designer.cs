@@ -28,8 +28,10 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.layoutPanel = new System.Windows.Forms.TableLayoutPanel();
             this.labelServer = new System.Windows.Forms.Label();
+            this.contextMenuServer = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.labelHello = new System.Windows.Forms.Label();
             this.labelSayHello = new System.Windows.Forms.Label();
             this.buttonUse = new System.Windows.Forms.Button();
@@ -76,6 +78,7 @@
             // 
             // labelServer
             // 
+            this.labelServer.ContextMenuStrip = this.contextMenuServer;
             this.labelServer.Dock = System.Windows.Forms.DockStyle.Fill;
             this.labelServer.Location = new System.Drawing.Point(3, 0);
             this.labelServer.Name = "labelServer";
@@ -83,6 +86,12 @@
             this.labelServer.TabIndex = 0;
             this.labelServer.Text = "Server";
             this.labelServer.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // contextMenuServer
+            // 
+            this.contextMenuServer.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.contextMenuServer.Name = "contextMenuServer";
+            this.contextMenuServer.Size = new System.Drawing.Size(61, 4);
             // 
             // labelHello
             // 
@@ -106,6 +115,7 @@
             // 
             // buttonUse
             // 
+            this.buttonUse.ContextMenuStrip = this.contextMenuServer;
             this.buttonUse.Dock = System.Windows.Forms.DockStyle.Fill;
             this.buttonUse.Location = new System.Drawing.Point(774, 3);
             this.buttonUse.Name = "buttonUse";
@@ -141,6 +151,7 @@
             // 
             // textBoxServer
             // 
+            this.textBoxServer.ContextMenuStrip = this.contextMenuServer;
             this.textBoxServer.Dock = System.Windows.Forms.DockStyle.Fill;
             this.textBoxServer.Location = new System.Drawing.Point(123, 3);
             this.textBoxServer.Name = "textBoxServer";
@@ -154,6 +165,7 @@
             this.textBoxHello.Name = "textBoxHello";
             this.textBoxHello.Size = new System.Drawing.Size(645, 27);
             this.textBoxHello.TabIndex = 7;
+            this.textBoxHello.Text = "Server";
             // 
             // textBoxSayHello
             // 
@@ -162,11 +174,13 @@
             this.textBoxSayHello.Name = "textBoxSayHello";
             this.textBoxSayHello.Size = new System.Drawing.Size(645, 27);
             this.textBoxSayHello.TabIndex = 8;
+            this.textBoxSayHello.Text = "MyName";
             // 
             // textBoxMessages
             // 
             this.layoutPanel.SetColumnSpan(this.textBoxMessages, 3);
             this.textBoxMessages.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.textBoxMessages.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.textBoxMessages.Location = new System.Drawing.Point(3, 139);
             this.textBoxMessages.Multiline = true;
             this.textBoxMessages.Name = "textBoxMessages";
@@ -229,5 +243,6 @@
         private TextBox textBoxMessages;
         private Label label1;
         private Button buttonPostData;
+        private ContextMenuStrip contextMenuServer;
     }
 }

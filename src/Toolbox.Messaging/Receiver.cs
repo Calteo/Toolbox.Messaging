@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Threading;
 using Toolbox.Messaging.Listeners;
 
 namespace Toolbox.Messaging
@@ -40,9 +43,8 @@ namespace Toolbox.Messaging
 
         public Listener AddListener(string connection)
         {
-            var listener = Listener.Create(connection);
-            listener.Receiver = this;
-
+            var listener = Listener.Create(connection, this);
+            
             _listeners.Add(listener);
 
             if (Started)
@@ -51,7 +53,7 @@ namespace Toolbox.Messaging
             return listener;
         }
 
-        private readonly List<Listener> _listeners = new List<Listener>();
+        private readonly List<Listener> _listeners = new();
 
         public IReadOnlyList<Listener> Listeners => _listeners;
 
@@ -59,9 +61,20 @@ namespace Toolbox.Messaging
 
         public bool Started { get; private set; }
 
+        private CancellationTokenSource TokenSource { get; set; } = new CancellationTokenSource();
+        internal CancellationToken Token => TokenSource.Token;
+
+        /// <summary>
+        /// Gets the first connection if it exists.
+        /// </summary>
+        internal string? DefaultConnection => _listeners.FirstOrDefault()?.Connection;
+
         public void Start()
         {
             if (Started) return;
+
+            TokenSource.Cancel();
+            TokenSource = new CancellationTokenSource();
 
             _listeners.ForEach(l => l.Start());
 
@@ -72,13 +85,19 @@ namespace Toolbox.Messaging
         {
             if (!Started) return;
 
+            TokenSource.Cancel();
             _listeners.ForEach(l => l.Stop());
 
             Started = false;
         }
 
-        internal void DoReceive(Message message)
+        internal void DoReceive(MemoryStream stream)
         {
+            var formatter = new BinaryFormatter();
+            var message = (Message)formatter.Deserialize(stream);
+
+            Trace.WriteLine($"message '{message.Name}' (arguments[{message.Arguments.Count}]) received", nameof(Receiver));
+
             for (var i = 0; i < message.Arguments.Count; i++)
             {
                 if (message.Arguments[i] is EndPoint endpoint)
@@ -97,13 +116,13 @@ namespace Toolbox.Messaging
 
         protected virtual void InvokeHandler(Message message)
         {
-            if (!Handlers.TryGetValue(message.Name, out Delegate messageHandler))
+            if (!Handlers.TryGetValue(message.Name, out var messageHandler))
             {
                 Trace.WriteLine($"No handler for message '{message.Name}", GetType().Name);
                 return;
             }
 
-            Trace.WriteLine($"invoking '{messageHandler.Method.Name}'", GetType().Name);
+            Trace.WriteLine($"invoking '{messageHandler.Method.Name}()'", GetType().Name);
             messageHandler.DynamicInvoke(message.Arguments.ToArray());
         }
     }

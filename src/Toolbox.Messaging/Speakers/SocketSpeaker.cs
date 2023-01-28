@@ -20,7 +20,7 @@ namespace Toolbox.Messaging.Speakers
             if (Uri.IsDefaultPort)
                 throw new ArgumentException($"No port given on connection ({connection}).", nameof(connection));
 
-            if (IPAddress.TryParse(Uri.Host, out IPAddress address))
+            if (IPAddress.TryParse(Uri.Host, out var address))
                 throw new ArgumentException($"Invalid address on connection ({connection}).", nameof(connection));
 
             address ??= Dns.GetHostAddresses(Uri.Host).FirstOrDefault(a => a.AddressFamily == AddressFamily.InterNetwork);

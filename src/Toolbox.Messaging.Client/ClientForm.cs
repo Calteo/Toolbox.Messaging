@@ -13,12 +13,23 @@ namespace Toolbox.Messaging.Client
             Trace.Listeners.Add(new TextBoxTraceListener(textBoxMessages));
 
             // client reply recievers should use free ports
-            Receiver = new ClientReceiver(this, $"udp://{Dns.GetHostName()}");            
+            Receiver = new ClientReceiver(this, $"udp://{Dns.GetHostName()}");
+
+            contextMenuServer.Items.Add(DemoApplication.TcpConnection).Click += ServerConnectionClicked;
+            contextMenuServer.Items.Add(DemoApplication.UdpConnection).Click += ServerConnectionClicked;
+        }
+
+        private void ServerConnectionClicked(object? sender, EventArgs e)
+        {
+            if (sender is ToolStripItem item)
+            {
+                textBoxServer.Text = item.Text;
+                buttonUse.PerformClick();
+            }                    
         }
 
         private void ClientFormLoad(object sender, EventArgs e)
         {
-            textBoxServer.Text = $"tcp://{Dns.GetHostName()}:55833";            
         }
 
         private Sender? Sender { get; set; }
@@ -30,7 +41,7 @@ namespace Toolbox.Messaging.Client
             {
                 UseWaitCursor = true;
 
-                AppendMessage($"post hello '{textBoxSayHello.Text}'");
+                AppendMessage($"post hello '{textBoxHello.Text}'");
                 Sender?.Post("hello", textBoxHello.Text);
             }
             catch (Exception exception)
@@ -110,8 +121,9 @@ namespace Toolbox.Messaging.Client
         private void ClientFormShown(object sender, EventArgs e)
         {
             Receiver.Start();
+            AppendMessage($"receiver started - {Receiver.Listeners[0].Connection}");
 
-            AppendMessage($"receiver - {Receiver.Listeners[0].Connection}");
+            contextMenuServer.Items[1].PerformClick();
         }
 
         private void ButtonPostDataClick(object sender, EventArgs e)

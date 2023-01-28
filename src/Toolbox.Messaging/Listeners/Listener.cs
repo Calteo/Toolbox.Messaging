@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.Serialization.Formatters.Binary;
+﻿using System.IO;
 using System.Threading.Tasks;
 using Toolbox.Messaging.Schemes;
 
@@ -19,19 +13,30 @@ namespace Toolbox.Messaging.Listeners
         /// Intiailzes a new instance of the <see cref="Listener"/> class for an endpoint.
         /// </summary>
         /// <param name="connection">The endpoint to listen.</param>
-        protected Listener(string connection) : base(connection)
+        protected Listener(string connection, Receiver receiver) : base(connection)
         {            
+            Receiver = receiver;
         }
 
         /// <summary>
         /// The receiver containing this listener.
         /// </summary>
-        public Receiver Receiver { get; internal set; }
+        public Receiver Receiver { get; }
 
+        /// <summary>
+        /// Start listening on the endpoint
+        /// </summary>
         internal abstract void Start();
 
+        /// <summary>
+        /// Stop listening on the Endpoint
+        /// </summary>
         internal abstract void Stop();
 
+        /// <summary>
+        /// Starts a new <see cref="Task"/> to handle a <see cref="Message"/>.
+        /// </summary>
+        /// <param name="buffer"></param>
         protected async void DoReceiveASync(byte[] buffer)
         {
             await Task.Run(() => DoReceive(buffer));
@@ -42,14 +47,15 @@ namespace Toolbox.Messaging.Listeners
             var stream = new MemoryStream(buffer);
 
             var decoded = Decode(stream);
-            
-            var formatter = new BinaryFormatter();            
-            var message = (Message)formatter.Deserialize(decoded);
 
-            Trace.WriteLine($"message '{message.Name}' received", TraceCategory);
-            Receiver.DoReceive(message);            
+            Receiver.DoReceive(decoded);
         }
 
+        /// <summary>
+        /// Optional decoding methof before the <see cref="Message"/> is deserialized.
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <returns></returns>
         protected virtual MemoryStream Decode(MemoryStream stream)
         {
             return stream;

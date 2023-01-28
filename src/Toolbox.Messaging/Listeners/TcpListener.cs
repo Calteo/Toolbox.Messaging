@@ -1,45 +1,62 @@
 ﻿using System;
 using System.Diagnostics;
-using System.IO;
 using System.Net.Sockets;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading.Tasks;
 using Toolbox.Messaging.Schemes;
 
 namespace Toolbox.Messaging.Listeners
 {
+    /// <summary>
+    /// Listener on a TCP port.
+    /// </summary>
     [Scheme("tcp")]
     class TcpListener : SocketListener
     {
-        public TcpListener(string connection) : base(connection, SocketType.Stream, ProtocolType.Tcp)
-        {
-            Listener = new System.Net.Sockets.TcpListener(EndPoint);
+        /// <summary>
+        /// Initialize a new instance of the <see cref="TcpListener"/> class.
+        /// </summary>
+        /// <param name="connection"></param>
+        public TcpListener(string connection, Receiver receiver) : base(connection, receiver, SocketType.Stream, ProtocolType.Tcp)
+        {            
         }
 
-        private System.Net.Sockets.TcpListener Listener { get; }
+        private System.Net.Sockets.TcpListener? Listener { get; set; }
 
+        /// <inheritdoc />
         internal override async void Start()
-        {          
+        {
+            Listener = new System.Net.Sockets.TcpListener(EndPoint);
             Listener.Start();
 
-            while (true)
+            while (!Receiver.Token.IsCancellationRequested)
             {
                 try
                 {
                     Trace.WriteLine("awaiting connection", TraceCategory);
-                    TcpClient tcpClient = await Listener.AcceptTcpClientAsync();
-                    Trace.WriteLine($"got connection - {tcpClient.Client.RemoteEndPoint}", TraceCategory);
+                    TcpClient tcpClient = await Listener.AcceptTcpClientAsync(Receiver.Token);
+                    Trace.WriteLine($"got connection from {tcpClient.Client.RemoteEndPoint}", TraceCategory);
                     var task = StartHandleConnectionAsync(tcpClient);
 
                     // if already faulted, re-throw any error on the calling context
                     if (task.IsFaulted)
                         task.Wait();
                 }
+                catch (OperationCanceledException cancelException) 
+                {
+                    Trace.WriteLine(cancelException.Message, TraceCategory);
+                }
                 catch (Exception exception)
                 {
                     Trace.WriteLine(exception.Message, TraceCategory);
                 }
             }
+        }
+
+        /// <inheritdoc />
+        internal override void Stop()
+        {
+            Listener?.Stop();
+            Listener = null;
         }
 
         private async Task StartHandleConnectionAsync(TcpClient tcpClient)
@@ -76,23 +93,28 @@ namespace Toolbox.Messaging.Listeners
                 {
                     Trace.WriteLine($"awaiting request", TraceCategory);
 
-                    var length = await networkStream.ReadAsync(lengthBuffer, 0, lengthBuffer.Length);
+                    var length = await networkStream.ReadAsync(lengthBuffer, 0, lengthBuffer.Length, Receiver.Token);
                     if (length == lengthBuffer.Length)
                     {
                         var messageLength = BitConverter.ToInt64(lengthBuffer, 0);
-                        var messageBuffer = new byte[messageLength];
-                        var gotLength = await networkStream.ReadAsync(messageBuffer, 0, messageBuffer.Length);
 
-                        Trace.WriteLine($"read - {gotLength} bytes", TraceCategory);
+                        Trace.WriteLine($"got {messageLength} bytes", TraceCategory);
+
+                        var messageBuffer = new byte[messageLength];
+                        var gotLength = await networkStream.ReadAsync(messageBuffer, 0, messageBuffer.Length, Receiver.Token);
 
                         if (gotLength == messageLength)
-                        {
+                        {                           
                             DoReceiveASync(messageBuffer);
+                        }
+                        else
+                        {
+                            Trace.WriteLine($"read {gotLength} <> {messageLength} bytes", TraceCategory);
                         }
                     }
                     else
                     {
-                        Trace.WriteLine($"{clientEndPoint} - bad length input (length={length})", TraceCategory);
+                        Trace.WriteLine($"bad length on input ({length}<>{lengthBuffer.Length})", TraceCategory);
                         break; // Client closed connection
                     }
                 }
@@ -101,19 +123,14 @@ namespace Toolbox.Messaging.Listeners
             }
             catch (Exception exception)
             {
-                Trace.WriteLine($"{clientEndPoint} - " + exception.Message, TraceCategory);
+                Trace.WriteLine(exception.Message, TraceCategory);
 
                 if (tcpClient.Connected)
                 {
-                    Trace.WriteLine($"{clientEndPoint} - close@catch", TraceCategory);
+                    Trace.WriteLine($"close@catch", TraceCategory);
                     tcpClient.Close();
                 }
             }
-        }
-
-        internal override void Stop()
-        {
-            Listener.Stop();
         }
     }
 }

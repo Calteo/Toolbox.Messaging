@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
+﻿using System.Diagnostics;
 
 namespace Toolbox.Messaging.Forms
 {
@@ -27,8 +21,8 @@ namespace Toolbox.Messaging.Forms
             {
                 TextBox.Text += $"> {text ?? "<null>"}" + Environment.NewLine;
                 TextBox.SelectionLength = 0;
-                TextBox.SelectionStart = TextBox.Text.Length;
-                TextBox.ScrollToCaret();
+                TextBox.SelectionStart = TextBox.Text.Length-1;
+                TextBox.ScrollToCaret();                
             }
         }
 
